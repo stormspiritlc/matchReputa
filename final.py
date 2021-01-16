@@ -1,10 +1,10 @@
-import pandas as pd
-import openpyxl as xl
+from pandas import ExcelFile
+from openpyxl import load_workbook
 from selenium import webdriver
 from bs4 import BeautifulSoup
-import shutil
-import re
-import glob
+from shutil import move
+from re import split
+from glob import glob
 
 from datetime import datetime
 now = datetime.now()
@@ -12,19 +12,18 @@ currentTime = now.strftime("%H.%M")
 
 #TODO: Load SMCC data sheet
 #NOTE: Lấy tất cả xlsx file trong folder demo
-files = glob.glob("./source/*.xlsx")
-print(files)
+files = glob("./source/*.xlsx")
 #NOTE: SMCC sheet
-wb1 = xl.load_workbook(files[0])
+wb1 = load_workbook(files[0])
 sh1 = wb1.active
 #NOTE: SMCC template sheet when no SMCC sheet
-wb2 = xl.load_workbook(files[1])
+wb2 = load_workbook(files[1])
 sh2 = wb2.active
 
 max = sh1.max_row
 
 #TODO: turn Reputa sheet into dataframe and modify to fit SMCC sheet
-excels = pd.ExcelFile(files[2])
+excels = ExcelFile(files[2])
 frames = excels.parse(excels.sheet_names[0], header=6,index_col=None)
 newframes = frames[["STT", "Ngày", "Thời gian", "Tiêu đề", "URL", "Tóm Tắt", "Sắc thái", "Like", "Comment", "Share", "Tên miền"]].copy() #đổi thứ tự cột
 newframes["STT"] = newframes["STT"].apply(lambda x: x + max - 2) #sửa STT
@@ -33,7 +32,7 @@ newframes["Sắc thái"] = newframes["Sắc thái"].apply(lambda x: str(x).capit
 
 #NOTE: sửa tác giả
 def getAuthorUrl(link):
-    a = re.split("://", link)
+    a = split("://", link)
     newlink = a[0] + "://m." + a[1]
     op = webdriver.ChromeOptions()
     op.add_argument('headless')
@@ -44,7 +43,7 @@ def getAuthorUrl(link):
     names = soup.find_all("div", class_="_5rgr async_like")[0]
     driver.close()
     # names = soup.find_all('a')['href']
-    id = re.split(",|:", str(names))
+    id = split(",|:", str(names))
     author_url = "http://facebook.com/{}".format(id[3][1:-1])
     return author_url
 
@@ -58,6 +57,7 @@ for count, value in enumerate(newframes["Tên miền"]):
     else:
         list_tacgia.append("http://{}".format(value))
 newframes["Tác giả"] = list_tacgia 
+
 #thêm cột phân loại
 def getPostUrl(link):
     op = webdriver.ChromeOptions()
@@ -98,6 +98,6 @@ else:
 
 #TODO: Sắp xếp lại file
 #NOTE: Move file đã match vào folder data
-shutil.move(files[0], "./data")
-shutil.move(files[2], "./data")
+move(files[0], "./data")
+move(files[2], "./data")
 
