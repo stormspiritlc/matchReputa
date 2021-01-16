@@ -1,10 +1,7 @@
 import pandas as pd
 import openpyxl as xl
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-import time
 from bs4 import BeautifulSoup
-import os
 import shutil
 import re
 import glob
@@ -45,6 +42,7 @@ def getAuthorUrl(link):
     page = driver.page_source
     soup = BeautifulSoup(page, "html.parser")
     names = soup.find_all("div", class_="_5rgr async_like")[0]
+    driver.close()
     # names = soup.find_all('a')['href']
     id = re.split(",|:", str(names))
     author_url = "http://facebook.com/{}".format(id[3][1:-1])
@@ -67,6 +65,7 @@ def getPostUrl(link):
     driver = webdriver.Chrome(options=op)
     driver.get(link)
     url = driver.current_url
+    driver.close()
     print(url)
     return url
 
@@ -100,5 +99,5 @@ else:
 #TODO: Sắp xếp lại file
 #NOTE: Move file đã match vào folder data
 shutil.move(files[0], "./data")
-shutil.move(files[1], "./data")
+shutil.move(files[2], "./data")
 
