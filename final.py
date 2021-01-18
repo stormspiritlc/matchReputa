@@ -12,10 +12,16 @@ currentTime = now.strftime("%H.%M")
 
 #TODO: Load SMCC data sheet
 #NOTE: Lấy tất cả xlsx file trong folder demo
-files = glob("./source/*.xlsx")
-print(files)
+sources = glob("./source/*.xlsx")
+files = ["", "", ""]
+for file in sources:
+    if "reputa" in file.lower():
+        files[2] = file
+    elif "smcctemplate" in file.lower():
+        files[1] = file
+    else: files[0] = file
 #NOTE: SMCC sheet
-wb1 = load_workbook(files[2])
+wb1 = load_workbook(files[0])
 sh1 = wb1.active
 #NOTE: SMCC template sheet when no SMCC sheet
 wb2 = load_workbook(files[1])
@@ -24,7 +30,7 @@ sh2 = wb2.active
 max = sh1.max_row
 
 #TODO: turn Reputa sheet into dataframe and modify to fit SMCC sheet
-excels = ExcelFile(files[0])
+excels = ExcelFile(files[2])
 frames = excels.parse(excels.sheet_names[0], header=6,index_col=None)
 newframes = frames[["STT", "Ngày", "Thời gian", "Tiêu đề", "URL", "Tóm Tắt", "Sắc thái", "Like", "Comment", "Share", "Tên miền"]].copy() #đổi thứ tự cột
 newframes["STT"] = newframes["STT"].apply(lambda x: x + max) #sửa STT
