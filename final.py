@@ -33,7 +33,7 @@ max = sh1.max_row
 excels = ExcelFile(files[2])
 frames = excels.parse(excels.sheet_names[0], header=6,index_col=None)
 newframes = frames[["STT", "Ngày", "Thời gian", "Tiêu đề", "URL", "Tóm Tắt", "Sắc thái", "Like", "Comment", "Share", "Tên miền"]].copy() #đổi thứ tự cột
-newframes["STT"] = newframes["STT"].apply(lambda x: x + max) #sửa STT
+newframes["STT"] = newframes["STT"].apply(lambda x: x + max - 2) #sửa STT
 newframes["Thời gian"] = newframes["Thời gian"].apply(lambda x: ":".join(str(x).split(":")[:2])) #sửa thời gian
 newframes["Sắc thái"] = newframes["Sắc thái"].apply(lambda x: str(x).capitalize()) #sửa sắc thái
 
