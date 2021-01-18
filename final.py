@@ -13,8 +13,9 @@ currentTime = now.strftime("%H.%M")
 #TODO: Load SMCC data sheet
 #NOTE: Lấy tất cả xlsx file trong folder demo
 files = glob("./source/*.xlsx")
+print(files)
 #NOTE: SMCC sheet
-wb1 = load_workbook(files[0])
+wb1 = load_workbook(files[2])
 sh1 = wb1.active
 #NOTE: SMCC template sheet when no SMCC sheet
 wb2 = load_workbook(files[1])
@@ -23,10 +24,10 @@ sh2 = wb2.active
 max = sh1.max_row
 
 #TODO: turn Reputa sheet into dataframe and modify to fit SMCC sheet
-excels = ExcelFile(files[2])
+excels = ExcelFile(files[0])
 frames = excels.parse(excels.sheet_names[0], header=6,index_col=None)
 newframes = frames[["STT", "Ngày", "Thời gian", "Tiêu đề", "URL", "Tóm Tắt", "Sắc thái", "Like", "Comment", "Share", "Tên miền"]].copy() #đổi thứ tự cột
-newframes["STT"] = newframes["STT"].apply(lambda x: x + max - 2) #sửa STT
+newframes["STT"] = newframes["STT"].apply(lambda x: x + max) #sửa STT
 newframes["Thời gian"] = newframes["Thời gian"].apply(lambda x: ":".join(str(x).split(":")[:2])) #sửa thời gian
 newframes["Sắc thái"] = newframes["Sắc thái"].apply(lambda x: str(x).capitalize()) #sửa sắc thái
 
@@ -40,12 +41,15 @@ def getAuthorUrl(link):
     driver.get(newlink)
     page = driver.page_source
     soup = BeautifulSoup(page, "html.parser")
-    names = soup.find_all("div", class_="_5rgr async_like")[0]
-    driver.close()
-    # names = soup.find_all('a')['href']
-    id = split(",|:", str(names))
-    author_url = "http://facebook.com/{}".format(id[3][1:-1])
-    return author_url
+    if soup.find_all("div", class_="_5rgr async_like") == []:
+        author_url = "Co vde"
+    else: 
+        names = soup.find_all("div", class_="_5rgr async_like")[0]
+        driver.close()
+        # names = soup.find_all('a')['href']
+        id = split(",|:", str(names))
+        author_url = "http://facebook.com/{}".format(id[3][1:-1])
+        return author_url
 
 #thêm cột tác giả
 list_tacgia = []
@@ -53,6 +57,7 @@ for count, value in enumerate(newframes["Tên miền"]):
         # print(value)
     if value == "facebook.com":
         author_url = getAuthorUrl(newframes["URL"][count])
+        print(author_url)
         list_tacgia.append(author_url)
     else:
         list_tacgia.append("http://{}".format(value))
