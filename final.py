@@ -36,6 +36,7 @@ newframes = frames[["STT", "Ngày", "Thời gian", "Tiêu đề", "URL", "Tóm T
 newframes["STT"] = newframes["STT"].apply(lambda x: x + max - 2) #sửa STT
 newframes["Thời gian"] = newframes["Thời gian"].apply(lambda x: ":".join(str(x).split(":")[:2])) #sửa thời gian
 newframes["Sắc thái"] = newframes["Sắc thái"].apply(lambda x: str(x).capitalize()) #sửa sắc thái
+newframes["Sắc thái"] = newframes["Sắc thái"].replace("Trung lập", "Trung tính")
 
 #NOTE: sửa tác giả
 def getAuthorUrl(link):
@@ -99,12 +100,14 @@ newframes["Phân loại"] = list_phanloai
 #TODO: Chuyển dataframe thành list và append vào SMCC sheet
 data = newframes.values.tolist()
 if max != 2:
-    for i in data:
-        sh1.append(i)
+    for i, j in enumerate(data):
+        sh1.append(j)
+        sh1.row_dimensions[max+i].height = 21
     wb1.save("result/báo_cáo_Huawei Media Monitoring_{}_{}.xlsx".format(newframes["Ngày"][0], currentTime))
 else:
-    for i in data:
-        sh2.append(i)
+    for i, j in enumerate(data):
+        sh2.append(j)
+        sh2.row_dimensions[max+i+1].height = 21
     wb2.save("result/báo_cáo_Huawei Media Monitoring_{}_{}.xlsx".format(newframes["Ngày"][0], currentTime))
 
 #TODO: Sắp xếp lại file
